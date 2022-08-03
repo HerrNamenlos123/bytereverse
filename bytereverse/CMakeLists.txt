@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(TARGET_NAME ByteReverser)
+set(TARGET_NAME bytereverse)
 project(${TARGET_NAME} VERSION 1.0.0 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
