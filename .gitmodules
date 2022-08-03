@@ -1,0 +1,3 @@
+[submodule "modules/Battery"]
+	path = modules/Battery
+	url = https://github.com/HerrNamenlos123/Battery.git
