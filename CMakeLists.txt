@@ -8,16 +8,53 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 
 
 
-#############################
-# Static library definition #
-#############################
+
+
+################
+# Dependencies #
+################
+
+if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/Battery/CMakeLists.txt")
+set(GET_SUB true)
+endif ()
+
+if (GET_SUB)
+find_package(Git)
+if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_LIST_DIR}/.git")
+    # Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+        message(STATUS "Submodule update in ${CMAKE_CURRENT_LIST_DIR}")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        endif()
+    endif()
+endif()
+endif()
+
+if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/Battery/CMakeLists.txt")
+message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+endif ()
+
+add_subdirectory("modules/Battery")
+
+
+
+#########################
+# Executable definition #
+#########################
 
 file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS "include/*")
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS "src/*")
+file(GLOB_RECURSE RES_FILES CONFIGURE_DEPENDS "resource/*")
 
-add_executable(${TARGET_NAME} ${SRC_FILES} ${HEADER_FILES})
+add_executable(${TARGET_NAME} ${SRC_FILES} ${HEADER_FILES} ${RES_FILES})
 
 target_include_directories(${TARGET_NAME} PUBLIC include)
+target_include_directories(${TARGET_NAME} PUBLIC resource)
 target_include_directories(${TARGET_NAME} PUBLIC build)
 
 target_compile_features(${TARGET_NAME} PRIVATE cxx_std_14)
@@ -28,11 +65,13 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 )
 
 if(MSVC)
-    set_property(TARGET ${TARGET_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    target_compile_options(${TARGET_NAME} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_NAME})
 else()
     target_compile_options(${TARGET_NAME} PRIVATE -Wno-psabi)
 endif()
+
+
 
 
 ############################
@@ -60,6 +99,15 @@ configure_file(version.h.in version.h)
 
 
 
+###########
+# Linking #
+###########
+
+target_link_libraries(${TARGET_NAME} Battery::Battery)
+
+
+
+
 #######
 # IDE #
 #######
@@ -68,6 +116,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "Source Files" FILES ${SRC_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${HEADER_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/resource" PREFIX "Resource Files" FILES ${RES_FILES})
 
 
 ###########
