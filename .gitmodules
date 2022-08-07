@@ -4,3 +4,6 @@
 [submodule "modules/cereal"]
 	path = modules/cereal
 	url = https://github.com/USCiLab/cereal.git
+[submodule "modules/banana"]
+	path = modules/banana
+	url = https://github.com/Smertig/banana.git

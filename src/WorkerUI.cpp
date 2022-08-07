@@ -37,6 +37,11 @@ void WorkerUI::update() {
 		threadJoined = true;
 		canBeClosed = true;
 
+        if (!workSucceeded) {
+            Battery::MessageBoxError("Failed to convert bitstream: " + workErrorMessage);
+            shouldBeClosed = true;
+        }
+
 		fadeStartTime = Battery::GetRuntime().asSeconds();
 		Battery::SetWindowTransparent(Battery::GetApp().window, true);
 	}
@@ -86,8 +91,8 @@ void WorkerUI::OnRender() {
     ImGui::Image((ImTextureID)RES->ArduinoIconTexture.getNativeHandle(), ImVec2(ImGui::GetWindowHeight() - offset * 2, ImGui::GetWindowHeight() - offset * 2));
     ImGui::NextColumn();
     ImGui::PushFont(Fonts::robotoWorker);
-    ImGui::Text("Profile: %s", profile.c_str());
-    ImGui::Text("Input: %s", shortenFilename(source).c_str());
+    ImGui::Text("Profile: [%s]", profile.c_str());
+    ImGui::Text("Input:    %s", shortenFilename(source).c_str());
     ImGui::Text("Output: %s", shortenFilename(target).c_str());
     ImGui::EndColumns();
 
@@ -99,7 +104,12 @@ void WorkerUI::OnRender() {
     }
     else {
         ImGui::PushFont(Fonts::fontAwesomeHugeCheckMark);
-        ImGui::TextColored(ImVec4(0, 1, 0, 1), "\xef\x80\x8c");	// Green check mark
+        if (workSucceeded) {
+            ImGui::TextColored(ImVec4(0, 1, 0, 1), "\xef\x80\x8c");	// Green check mark
+        }
+        else {
+            ImGui::TextColored(ImVec4(1, 0, 0, 1), "\xef\x80\x8d");	// Red cross
+        }
         ImGui::PopFont();
     }
 

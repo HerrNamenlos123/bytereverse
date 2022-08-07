@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "BatteryApp.h"
 #include "GlobalResources.h"
+#include "Shortcut.h"
 
 void BatteryApp::OnStartup() {
 
@@ -12,6 +13,7 @@ void BatteryApp::OnStartup() {
     loadResources();
     OptionsFile::loadOptions();
     Battery::PrepareDirectory(RES->appdataPath);
+    std::filesystem::current_path(RES->appdataPath);
 
     try {
         lockfile = std::make_unique<Battery::Lockfile>(RES->lockfilePath);
@@ -27,6 +29,8 @@ void BatteryApp::OnStartup() {
     tray = std::make_unique<Battery::TrayIcon>(RES->ArduinoIconImage, "Quick-convert for the current profile");
     tray->attachLeftClickCallback([&] { OnLeftClick(); });
     tray->attachRightClickCallback([&] { OnRightClick(); });
+
+    registerNewInstance();
 
     Fonts::load();
 }
@@ -47,7 +51,6 @@ void BatteryApp::OnUpdate() {
     else {
         SetWindowStandby(true);
     }
-    //window.display();
 
 }
 

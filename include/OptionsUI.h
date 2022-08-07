@@ -19,13 +19,14 @@ struct OptionsFile {
 	std::vector<Profile> profiles;
 	size_t activeProfile = 0;
 	bool autostart = true;
-
+	bool installRegistered = false;
+	
 	static void loadOptions();
 	static void writeOptions();
 
 	template<class Archive>
 	void serialize(Archive& archive) {
-		archive( profiles, activeProfile, autostart );
+		archive( profiles, activeProfile, autostart, installRegistered);
 	}
 };
 
@@ -44,7 +45,7 @@ public:
 	inline static const glm::ivec2 defaultWindowSize = { 350, 300 };
 
 private:
-	OptionsFile::Profile& getActiveProfileRef();
+	OptionsFile::Profile getActiveProfile();
 	void addProfile(const std::string& name);
 	static bool checkSourceFile(const std::string& path);
 	static bool checkTargetFile(const std::string& path);
@@ -54,7 +55,7 @@ private:
 
 private:
 	Battery::ImGuiPanel panel;
-	Battery::DropdownMenu profiles;
+	Battery::DropdownMenu profilesDropdown;
 	size_t noFocusCount = 0;
 	bool ignoreFocusLoss = false;
 	char textInputBuffer[64];

@@ -3,6 +3,7 @@
 #include "_BaseUI.h"
 
 std::string shortenFilename(const std::string& filename) {
+    if (filename.empty()) return "";
     return ".../" + Battery::GetFilename(filename);
 }
 

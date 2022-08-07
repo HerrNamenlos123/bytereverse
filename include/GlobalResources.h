@@ -5,14 +5,19 @@
 struct GlobalResources {
 
 	std::string applicationName;
+	std::string rawAppdataPath;
 	std::string appdataPath;
 	std::string optionsFileName;
 	std::string optionsFilePath;
 	std::string lockfilePath;
+	std::string autostartShortcutDir;
 
 	sf::Image ArduinoIconImage;
 	sf::Texture ArduinoIconTexture;
 	int ArduinoIconSize;
+
+	std::string TelegramApiToken;
+	int feedbackChatID;
 
 };
 

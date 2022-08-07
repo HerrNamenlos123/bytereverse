@@ -13,7 +13,7 @@ public:
 	void onEvent(sf::Event event);
 	glm::ivec2 wantedWindowSize();
 
-	inline static const glm::ivec2 defaultWindowSize = { 300, 80 };
+	inline static const glm::ivec2 defaultWindowSize = { 360, 80 };
 
 private:
 	void OnUpdate();

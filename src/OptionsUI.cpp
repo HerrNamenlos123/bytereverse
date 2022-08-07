@@ -1,10 +1,33 @@
 
 #include "OptionsUI.h"
 #include "GlobalResources.h"
+#include "TelegramBot.h"
 #include "cereal.h"
 #include "nfd.h"
+#include "Shortcut.h"
 
 OptionsFile optionsFile;
+
+void SetupAutostart() {
+    std::string shortcutPath = RES->autostartShortcutDir + "/" + Battery::GetExecutableName() + ".lnk";
+
+    if (optionsFile.autostart) {
+        if (!Battery::FileExists(shortcutPath)) {
+            LOG_INFO("Autostart enabled, shortcut must be created");
+            if (!CreateShortcut(shortcutPath, Battery::GetExecutablePath())) {
+                LOG_ERROR("Failed to create autostart shortcut: {} to {}", shortcutPath, Battery::GetExecutablePath());
+            }
+        }
+    }
+    else {
+        if (Battery::FileExists(shortcutPath)) {
+            LOG_INFO("Autostart disabled, shortcut must be deleted");
+            if (!Battery::RemoveFile(shortcutPath)) {
+                LOG_ERROR("Failed to remove autostart shortcut: '{}'", shortcutPath);
+            }
+        }
+    }
+}
 
 void OptionsFile::loadOptions() {
     LOG_DEBUG("Loading options from options file: {}", RES->optionsFilePath);
@@ -25,6 +48,8 @@ void OptionsFile::loadOptions() {
     catch (const std::exception& e) {
         LOG_ERROR("Failed to open options file: {}\nReason: XML parsing threw an exception: '{}'", RES->optionsFilePath, e.what());
     }
+
+    SetupAutostart();
 }
 
 void OptionsFile::writeOptions() {
@@ -36,6 +61,8 @@ void OptionsFile::writeOptions() {
     std::unique_ptr<cereal::XMLOutputArchive> oarchive = std::make_unique<cereal::XMLOutputArchive>(file);
     (*oarchive.get())(optionsFile);
     oarchive.reset();
+
+    SetupAutostart();
 }
 
 
@@ -84,11 +111,11 @@ glm::ivec2 OptionsUI::wantedWindowSize() {
 
 
 
-OptionsFile::Profile& OptionsUI::getActiveProfileRef() {
+OptionsFile::Profile OptionsUI::getActiveProfile() {
 
     if (optionsFile.profiles.size() == 0) {
-        LOG_WARN("There is no profile, need to get ref: Creating new profile 'Unnamed profile'");
-        addProfile("Unnamed profile");
+        OptionsFile::Profile p;
+        return p;
     }
 
     if (optionsFile.activeProfile >= optionsFile.profiles.size()) {
@@ -173,31 +200,45 @@ void OptionsUI::OnUpdate() {
         shouldBeClosed = true;
     }
 
-    profiles.name = "##Profiles";
-    profiles.items.clear();
+    profilesDropdown.name = "##Profiles";
+    profilesDropdown.items.clear();
     for (auto profile : optionsFile.profiles) {
-        profiles.items.push_back(profile.name);
+        profilesDropdown.items.push_back(profile.name);
     }
 
-    auto& profile = getActiveProfileRef();
-    if (chooseInput) {
-        chooseInput = false;
-        ignoreFocusLoss = true;
-        profile.sourcePath = openFileDialog();
-    }
-    if (chooseOutput) {
-        chooseOutput = false;
-        ignoreFocusLoss = true;
-        profile.targetPath = openFileDialog();
-    }
 
-    if (sourceFileChecked != profile.sourcePath) {
-        sourceFileValid = checkSourceFile(profile.sourcePath);
-        sourceFileChecked = profile.sourcePath;
+    if (optionsFile.profiles.size() > 0) {
+
+        if (optionsFile.activeProfile >= optionsFile.profiles.size()) {
+            optionsFile.activeProfile = optionsFile.profiles.size() - 1;
+            LOG_WARN("The profile index was invalid, choosing to the last profile");
+        }
+
+        auto& profile = optionsFile.profiles[optionsFile.activeProfile];
+
+        if (chooseInput) {
+            chooseInput = false;
+            ignoreFocusLoss = true;
+            profile.sourcePath = openFileDialog();
+        }
+        if (chooseOutput) {
+            chooseOutput = false;
+            ignoreFocusLoss = true;
+            profile.targetPath = openFileDialog();
+        }
+
+        if (sourceFileChecked != profile.sourcePath) {
+            sourceFileValid = checkSourceFile(profile.sourcePath);
+            sourceFileChecked = profile.sourcePath;
+        }
+        if (targetFileChecked != profile.targetPath) {
+            targetFileValid = checkTargetFile(profile.targetPath);
+            targetFileChecked = profile.targetPath;
+        }
     }
-    if (targetFileChecked != profile.targetPath) {
-        targetFileValid = checkTargetFile(profile.targetPath);
-        targetFileChecked = profile.targetPath;
+    else {
+        sourceFileValid = false;
+        targetFileValid = false;
     }
 }
 
@@ -213,7 +254,7 @@ void OptionsUI::OnRender() {
     ImGui::Text("Profile");
     ImGui::SameLine();
     ImGui::SetNextItemWidth(140);
-    profiles.Draw(optionsFile.activeProfile);
+    profilesDropdown.Draw(optionsFile.activeProfile);
     ImGui::SameLine();
 
     if (ImGui::Button("New")) {
@@ -238,7 +279,6 @@ void OptionsUI::OnRender() {
         bool ok = ImGui::InputText("##Name", textInputBuffer, sizeof(textInputBuffer), ImGuiInputTextFlags_EnterReturnsTrue);
         
         if (ImGui::Button("Cancel")) {
-            LOG_ERROR("CLOSE");
             ImGui::CloseCurrentPopup();
         }
             
@@ -261,7 +301,7 @@ void OptionsUI::OnRender() {
 
     if (ImGui::BeginPopupModal("Delete Profile", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
 
-        auto& profile = getActiveProfileRef();
+        auto profile = getActiveProfile();
         ImGui::Text("Are you sure you want to delete profile '%s'", profile.name.c_str());
 
         if (ImGui::Button("Cancel")) {
@@ -284,9 +324,9 @@ void OptionsUI::OnRender() {
 
 
 
-    auto& profile = getActiveProfileRef();
+    auto profile = getActiveProfile();
 
-    ImGui::Text("Input file:");
+    ImGui::Text("Input file:    ");
     ImGui::SameLine();
 
     ImGui::Text(shortenFilename(profile.sourcePath).c_str());
@@ -307,7 +347,7 @@ void OptionsUI::OnRender() {
 
 
 
-    ImGui::Text("Output file:");
+    ImGui::Text("Output file: ");
     ImGui::SameLine();
 
     ImGui::Text(shortenFilename(profile.targetPath).c_str());

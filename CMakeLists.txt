@@ -15,7 +15,8 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 ################
 
 if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/Battery/CMakeLists.txt"
-    OR NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/cereal/CMakeLists.txt")
+    OR NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/cereal/CMakeLists.txt"
+    OR NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/banana/CMakeLists.txt")
 set(GET_SUB true)
 endif ()
 
@@ -37,7 +38,8 @@ endif()
 endif()
 
 if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/Battery/CMakeLists.txt"
-    OR NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/cereal/CMakeLists.txt")
+    OR NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/cereal/CMakeLists.txt"
+    OR NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/banana/CMakeLists.txt")
 message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
 endif ()
 
@@ -46,6 +48,10 @@ add_subdirectory("modules/Battery")
 set(SKIP_PERFORMANCE_COMPARISON true)
 add_subdirectory("modules/cereal")
 
+add_subdirectory("modules/banana")
+add_library(banana::banana ALIAS banana)
+
+target_compile_options(banana PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 
 
 #########################
@@ -110,6 +116,9 @@ configure_file(version.h.in version.h)
 
 target_link_libraries(${TARGET_NAME} Battery::Battery)
 target_link_libraries(${TARGET_NAME} cereal::cereal)
+target_link_libraries(${TARGET_NAME} banana::banana)
+target_link_libraries(${TARGET_NAME} banana-default)
+target_link_libraries(${TARGET_NAME} banana-winapi)
 
 
 

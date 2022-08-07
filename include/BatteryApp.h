@@ -4,6 +4,7 @@
 
 #include "WorkerUI.h"
 #include "OptionsUI.h"
+#include "TelegramBot.h"
 
 class BatteryApp : public Battery::Application {
 public:
