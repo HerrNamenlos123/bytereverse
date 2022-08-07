@@ -3,16 +3,27 @@
 #include "BatteryApp.h"
 #include "GlobalResources.h"
 
-#define DEFAULT_WORK_WINDOW_WIDTH 300
-#define DEFAULT_WORK_WINDOW_HEIGHT 80
-
 void BatteryApp::OnStartup() {
 
-    //window.setFramerateLimit(30);
-
     window.setVisible(false);
-    loadResources();
+    window.setTitle("ByteReverser utility");
+    window.setFramerateLimit(60);
 
+    loadResources();
+    OptionsFile::loadOptions();
+    Battery::PrepareDirectory(RES->appdataPath);
+
+    try {
+        lockfile = std::make_unique<Battery::Lockfile>(RES->lockfilePath);
+    }
+    catch (const Battery::LockfileUnavailableException&) {
+        Battery::MessageBoxError("Another instance of ArduinoByteReverser is already running");
+        CloseApplication();
+        return;
+    }
+
+    Battery::SetWindowIcon(window, RES->ArduinoIconSize, RES->ArduinoIconImage);
+    
     tray = std::make_unique<Battery::TrayIcon>(RES->ArduinoIconImage, "Quick-convert for the current profile");
     tray->attachLeftClickCallback([&] { OnLeftClick(); });
     tray->attachRightClickCallback([&] { OnRightClick(); });
@@ -26,9 +37,17 @@ void BatteryApp::OnUpdate() {
     if (activeUI) {
         activeUI->update();
         if (activeUI->shouldBeClosed) {
+            LOG_DEBUG("activeUI requested to be closed, hiding window");
             activeUI.reset();
+            window.setVisible(false);
+            Battery::SetWindowTransparent(window, false);
         }
+        SetWindowStandby(false);
     }
+    else {
+        SetWindowStandby(true);
+    }
+    //window.display();
 
 }
 
@@ -37,6 +56,7 @@ void BatteryApp::OnRender() {
 }
 
 void BatteryApp::OnShutdown() {
+    activeUI.reset();
     releaseResources();
 }
 
@@ -66,9 +86,9 @@ void BatteryApp::OnEvent(sf::Event event, bool& handled) {
                 oldy = event.mouseMove.y;
             }
             if (dx != 0 || dy != 0) {
-                //if (ImGui::GetIO().WantCaptureMouse) {
-                    //MoveWindow(dx, dy);
-                //}
+                if (activeUI) {
+                    activeUI->moveWindowDelta(dx, dy);
+                }
             }
         }
     }
@@ -76,31 +96,60 @@ void BatteryApp::OnEvent(sf::Event event, bool& handled) {
         oldx = -1;
         oldy = -1;
     }
+
+    if (activeUI) {
+        activeUI->onEvent(event);
+    }
+}
+
+bool BatteryApp::ReadyForNewUI() {
+
+    if (activeUI) {
+        if (activeUI->canBeClosed)      // If there is another one which can be closed
+            return true;
+    }
+    else {
+        return true;                    // If there is no UI
+    }
+
+    return false;
 }
 
 void BatteryApp::OnLeftClick() {
 
-    bool instantiate = false;
-    if (activeUI) if (activeUI->canBeClosed) instantiate = true;
-    if (!activeUI) instantiate = true;
+    if (ReadyForNewUI()) {
 
-    if (instantiate) {
+        if (optionsFile.profiles.size() == 0) {
+            Battery::MessageBoxError("There is no profile active. Please right-click the tray icon and create a new one.");
+            return;
+        }
+
+        if (optionsFile.activeProfile >= optionsFile.profiles.size()) {
+            optionsFile.activeProfile = optionsFile.profiles.size() - 1;
+            LOG_WARN("The profile index was invalid, choosing to the last profile");
+        }
+
+        auto& profile = optionsFile.profiles[optionsFile.activeProfile];
+
+        LOG_DEBUG("Instantiating WorkerUI");
         activeUI.reset();
-        activeUI = std::make_unique<WorkerUI>();
-        activeUI->setupWindow(DEFAULT_WORK_WINDOW_WIDTH, DEFAULT_WORK_WINDOW_HEIGHT);
+        activeUI = std::make_unique<WorkerUI>(profile.name, profile.sourcePath, profile.targetPath);
+        activeUI->setupWindow();
+    }
+    else {
+        LOG_WARN("WorkerUI is blocked by another UI");
     }
 }
 
 void BatteryApp::OnRightClick() {
 
-    bool instantiate = false;
-    if (activeUI) if (activeUI->canBeClosed) instantiate = true;
-    if (!activeUI) instantiate = true;
-
-    if (instantiate) {
-        /*activeUI.reset();
+    if (ReadyForNewUI()) {
+        LOG_DEBUG("Instantiating OptionsUI");
+        activeUI.reset();
         activeUI = std::make_unique<OptionsUI>();
-        activeUI->setupWindow(DEFAULT_WORK_WINDOW_WIDTH, DEFAULT_WORK_WINDOW_HEIGHT);*/
+        activeUI->setupWindow();
     }
-    CloseApplication();
+    else {
+        LOG_WARN("OptionsUI is blocked by another UI");
+    }
 }

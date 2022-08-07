@@ -14,7 +14,8 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 # Dependencies #
 ################
 
-if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/Battery/CMakeLists.txt")
+if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/Battery/CMakeLists.txt"
+    OR NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/cereal/CMakeLists.txt")
 set(GET_SUB true)
 endif ()
 
@@ -35,11 +36,15 @@ if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_LIST_DIR}/.git")
 endif()
 endif()
 
-if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/Battery/CMakeLists.txt")
+if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/Battery/CMakeLists.txt"
+    OR NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/modules/cereal/CMakeLists.txt")
 message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
 endif ()
 
 add_subdirectory("modules/Battery")
+
+set(SKIP_PERFORMANCE_COMPARISON true)
+add_subdirectory("modules/cereal")
 
 
 
@@ -104,6 +109,7 @@ configure_file(version.h.in version.h)
 ###########
 
 target_link_libraries(${TARGET_NAME} Battery::Battery)
+target_link_libraries(${TARGET_NAME} cereal::cereal)
 
 
 

@@ -9,6 +9,7 @@ class BatteryApp : public Battery::Application {
 public:
     BatteryApp() {}
 
+    std::unique_ptr<Battery::Lockfile> lockfile;
     std::unique_ptr<Battery::TrayIcon> tray;
     sf::Texture iconTX;
 
@@ -23,6 +24,7 @@ public:
     void OnShutdown() override;
     void OnEvent(sf::Event event, bool& handled) override;
 
+    bool ReadyForNewUI();
     void OnLeftClick();
     void OnRightClick();
 };

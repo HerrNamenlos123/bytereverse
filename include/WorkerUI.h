@@ -5,15 +5,15 @@
 
 class WorkerUI : public _BaseUI {
 public:
-	WorkerUI();
+	WorkerUI(const std::string profileName, const std::string sourceFile, const std::string targetFile);
 	~WorkerUI();
 
 	void update();
 	void render();
+	void onEvent(sf::Event event);
+	glm::ivec2 wantedWindowSize();
 
-	std::string profile = "<ProFiLeNaMe>";
-	std::string source = "<SoUrCeFiLe>";
-	std::string target = "<TaRgEtFiLe>";
+	inline static const glm::ivec2 defaultWindowSize = { 300, 80 };
 
 private:
 	void OnUpdate();
@@ -31,5 +31,9 @@ private:
 	float fadeStartTime = 0.f;
 
 	sf::Texture iconTexture;
+
+	std::string profile;
+	std::string source;
+	std::string target;
 
 };

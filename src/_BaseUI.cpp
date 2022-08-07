@@ -2,7 +2,15 @@
 #include "pch.h"
 #include "_BaseUI.h"
 
-void _BaseUI::setupWindow(uint16_t width, uint16_t height, uint8_t alpha) {
+std::string shortenFilename(const std::string& filename) {
+    return ".../" + Battery::GetFilename(filename);
+}
+
+void _BaseUI::setupWindow(uint8_t alpha) {
+    auto size = wantedWindowSize();
+    uint16_t width = size.x;
+    uint16_t height = size.y;
+
     auto& window = Battery::GetApp().window;
     originalSize = { width, height };
 
@@ -20,7 +28,6 @@ void _BaseUI::setupWindow(uint16_t width, uint16_t height, uint8_t alpha) {
 
     window.setSize({ width, height });
     window.setPosition(pos);
-    window.setVisible(true);
 
     if (alpha == 255) {
         Battery::SetWindowTransparent(window, false);
@@ -29,6 +36,11 @@ void _BaseUI::setupWindow(uint16_t width, uint16_t height, uint8_t alpha) {
         Battery::SetWindowTransparent(window, true);
         Battery::SetWindowAlpha(window, alpha);
     }
+
+    Battery::platform_HideFromTaskbar(window.getSystemHandle());
+    window.setVisible(true);
+    window.requestFocus();
+    Battery::SetWindowFocus(window);
 }
 
 void _BaseUI::moveWindowDelta(int dx, int dy) {

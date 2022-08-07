@@ -3,16 +3,27 @@
 #include "workerThread.h"
 #include "GlobalResources.h"
 
-WorkerUI::WorkerUI() : panel([&] { OnUpdate(); }, [&] { OnRender(); }) {
+WorkerUI::WorkerUI(const std::string profileName, const std::string sourceFile, const std::string targetFile) : panel([&] { OnUpdate(); }, [&] { OnRender(); }) {
+    canBeClosed = false;
+
+    profile = profileName;
+    source = sourceFile;
+    target = targetFile;
+
 	workerThread = std::thread([&] { 
-		workSucceeded = doByteReverseWork(workErrorMessage);
+        LOG_INFO("Deploying work from worker thread");
+		workSucceeded = doByteReverseWork(workErrorMessage, profile, source, target);
+        LOG_INFO("Work is done, worker thread is ready to be joined");
 		threadReadyForJoining = true;
 	});
 }
 
 WorkerUI::~WorkerUI() {
-	if (!threadJoined)
-		workerThread.join();
+    if (!threadJoined) {
+        LOG_WARN("~WorkerUI(): workerThread has not been joined yet, waiting...");
+        workerThread.join();
+        LOG_WARN("~WorkerUI(): Thread has been joined");
+    }
 }
 
 
@@ -51,6 +62,14 @@ void WorkerUI::render() {
 	panel.render();
 }
 
+void WorkerUI::onEvent(sf::Event event) {
+
+}
+
+glm::ivec2 WorkerUI::wantedWindowSize() {
+    return defaultWindowSize;
+}
+
 
 
 
@@ -66,23 +85,11 @@ void WorkerUI::OnRender() {
     ImGui::SetColumnWidth(0, ImGui::GetWindowHeight() - offset);
     ImGui::Image((ImTextureID)RES->ArduinoIconTexture.getNativeHandle(), ImVec2(ImGui::GetWindowHeight() - offset * 2, ImGui::GetWindowHeight() - offset * 2));
     ImGui::NextColumn();
-    ImGui::PushFont(Fonts::robotoSmall);
+    ImGui::PushFont(Fonts::robotoWorker);
     ImGui::Text("Profile: %s", profile.c_str());
-    ImGui::Text("Source: %s", source.c_str());
-    ImGui::Text("Target: %s", target.c_str());
+    ImGui::Text("Input: %s", shortenFilename(source).c_str());
+    ImGui::Text("Output: %s", shortenFilename(target).c_str());
     ImGui::EndColumns();
-
-    int max = 0;
-    ImVec2 p = ImGui::CalcTextSize(profile.c_str());
-    max = std::max<int>(max, p.x);
-    p = ImGui::CalcTextSize(source.c_str());
-    max = std::max<int>(max, p.x);
-    p = ImGui::CalcTextSize(target.c_str());
-    max = std::max<int>(max, p.x);
-
-    int width = std::max<int>(originalSize.x, max + ImGui::GetWindowHeight() * 2 + 50);
-    if (width != window.getSize().x)
-        window.setSize({ (uint16_t)width, window.getSize().y });
 
     ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 58);
     ImGui::SetCursorPosY(ImGui::GetWindowHeight() / 2 - 10 - offset);
@@ -91,7 +98,7 @@ void WorkerUI::OnRender() {
         Battery::DrawImGuiSpinner("Loading", 16, 6, 0xFF00FF00);
     }
     else {
-        ImGui::PushFont(Fonts::fontAwesome);
+        ImGui::PushFont(Fonts::fontAwesomeHugeCheckMark);
         ImGui::TextColored(ImVec4(0, 1, 0, 1), "\xef\x80\x8c");	// Green check mark
         ImGui::PopFont();
     }
