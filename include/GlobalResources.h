@@ -19,6 +19,9 @@ struct GlobalResources {
 	std::string TelegramApiToken;
 	int feedbackChatID;
 
+	std::string githubIssueUrl;
+	std::string versionString;
+
 };
 
 extern std::unique_ptr<GlobalResources> RES;

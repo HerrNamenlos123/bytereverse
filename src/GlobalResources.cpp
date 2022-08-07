@@ -1,6 +1,7 @@
 
 #include "GlobalResources.h"
 #include "resource.h"
+#include "version.h"
 #include "cpplocate/cpplocate.h"
 
 std::unique_ptr<GlobalResources> RES;
@@ -28,6 +29,9 @@ void loadResources() {
 
     RES->TelegramApiToken = "5468665543:AAHgLsdbf1lSboxxrtcPAbtPFimjqQryVSc";
     RES->feedbackChatID = 729235222;
+
+    RES->githubIssueUrl = "https://github.com/HerrNamenlos123/bytereverse/issues/new";
+    RES->versionString = std::to_string(BYTEREVERSE_VERSION_MAJOR) + "." + std::to_string(BYTEREVERSE_VERSION_MINOR) + "." + std::to_string(BYTEREVERSE_VERSION_PATCH);
 }
 
 void releaseResources() {

@@ -172,6 +172,20 @@ std::string OptionsUI::openFileDialog() {
     return path;
 }
 
+std::string OptionsUI::saveFileDialog() {
+    nfdchar_t* outPath = NULL;
+    nfdresult_t result = NFD_SaveDialog("h", NULL, &outPath);
+
+    std::string path = "";
+
+    if (result == NFD_OKAY) {
+        path = outPath;
+        free(outPath);
+    }
+
+    return path;
+}
+
 
 void OptionsUI::OnUpdate() {
     /*if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
@@ -224,7 +238,7 @@ void OptionsUI::OnUpdate() {
         if (chooseOutput) {
             chooseOutput = false;
             ignoreFocusLoss = true;
-            profile.targetPath = openFileDialog();
+            profile.targetPath = saveFileDialog();
         }
 
         if (sourceFileChecked != profile.sourcePath) {
@@ -244,16 +258,172 @@ void OptionsUI::OnUpdate() {
 
 void OptionsUI::OnRender() {
     auto& window = Battery::GetApp().window;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(7, 7));
     
     ImGui::PushFont(Fonts::robotoOptions);
 
     ImGui::Text("Arduino MKR Vidor 4000:\nFPGA Bitstream conversion utility");
     ImGui::Separator();
+    ImVec2 pos = ImGui::GetCursorPos();
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 50);
+    ImGui::SetCursorPosY(10);
+    ImGui::PushFont(Fonts::fontAwesomeOptionsButtons);
+    if (ImGui::Button("\xef\x83\x80")) {                        // Feedback icon
+        ImGui::OpenPopup("FeedbackPopup");
+    }
+    ImGui::PopFont();
+    ImGui::HelperPopup("Instant feedback", Fonts::robotoOptionsPopups);
+    ImGui::SetCursorPos(pos);
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
+
+
+    bool feedback = false;
+    bool bugreport = false;
+    bool like = false;
+    bool dislike = false;
+    bool sent = false;
+    bool notsent = false;
+
+    ImGui::PushFont(Fonts::robotoOptionsPopups);
+    if (ImGui::BeginPopup("FeedbackPopup")) {
+
+        ImGui::PushFont(Fonts::fontAwesomeOptions);
+        ImGui::Text("\xef\x83\x80");
+        ImGui::SameLine();
+        ImGui::PopFont();
+        if (ImGui::Button("Feedback")) {
+            feedback = true;
+            memset(feedbackTextInputBuffer, 0, sizeof(feedbackTextInputBuffer));
+        }
+
+        ImGui::PushFont(Fonts::fontAwesomeOptions);
+        ImGui::Text("\xef\x86\x88");
+        ImGui::SameLine();
+        ImGui::PopFont();
+        if (ImGui::Button("Bug report")) {
+            bugreport = true;
+            memset(feedbackTextInputBuffer, 0, sizeof(feedbackTextInputBuffer));
+        }
+
+        ImGui::PushFont(Fonts::fontAwesomeOptions);
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "\xef\x85\xa4");
+        ImGui::SameLine();
+        ImGui::PopFont();
+        if (ImGui::Button("I like this app")) {
+            like = true;
+        }
+
+        ImGui::PushFont(Fonts::fontAwesomeOptions);
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), "\xef\x85\xa5");
+        ImGui::SameLine();
+        ImGui::PopFont();
+        if (ImGui::Button("I don't like this app")) {
+            dislike = true;
+        }
+
+        ImGui::PushFont(Fonts::fontAwesomeOptions);
+        ImGui::Text("\xef\x82\x9b");
+        ImGui::SameLine();
+        ImGui::PopFont();
+        if (ImGui::Button("GitHub")) {
+            Battery::ExecuteShellCommand("start " + RES->githubIssueUrl);
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+    ImGui::PopFont();
+
+    if (feedback) ImGui::OpenPopup("FeedbackInput");
+    if (ImGui::BeginPopup("FeedbackInput", ImGuiWindowFlags_AlwaysAutoResize)) {
+
+        ImGui::PushFont(Fonts::robotoSignature);
+        ImGui::InputTextMultiline("##Feedback", feedbackTextInputBuffer, sizeof(feedbackTextInputBuffer), ImVec2(260, 160));
+        ImGui::PopFont();
+
+        if (ImGui::Button("Cancel")) {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("OK")) {
+            std::string msg = feedbackTextInputBuffer;
+            if (!msg.empty()) {
+                if (sendFeedback(msg)) sent = true;
+                else notsent = true;
+            }
+            else {
+                LOG_WARN("Text was empty, no feedback sent");
+            }
+
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    if (bugreport) ImGui::OpenPopup("BugReport");
+    if (ImGui::BeginPopup("BugReport", ImGuiWindowFlags_AlwaysAutoResize)) {
+
+        ImGui::PushFont(Fonts::robotoSignature);
+        ImGui::InputTextMultiline("##Feedback", feedbackTextInputBuffer, sizeof(feedbackTextInputBuffer), ImVec2(260, 160));
+        ImGui::PopFont();
+
+        if (ImGui::Button("Cancel")) {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("OK")) {
+            std::string msg = feedbackTextInputBuffer;
+            if (!msg.empty()) {
+                if (sendBugreport(msg)) sent = true;
+                else notsent = true;
+            }
+            else {
+                LOG_WARN("Text was empty, no bugreport sent");
+            }
+
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    if (like) {
+        if (sendLike()) sent = true;
+        else notsent = true;
+    }
+
+    if (dislike) {
+        if (sendDislike()) sent = true;
+        else notsent = true;
+    }
+
+    if (sent) ImGui::OpenPopup("FeedbackSent");
+    if (ImGui::BeginPopup("FeedbackSent")) {
+        ImGui::Text("Thank you for your feedback! :)");
+        if (ImGui::Button("OK")) ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+    }
+
+    if (notsent) ImGui::OpenPopup("FeedbackNotSent");
+    if (ImGui::BeginPopup("FeedbackNotSent")) {
+        ImGui::Text("Your feedback could not be sent :(");
+        if (ImGui::Button("OK")) ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+    }
+
+
+
+
+
+
 
     ImGui::Text("Profile");
     ImGui::SameLine();
-    ImGui::SetNextItemWidth(140);
+    ImGui::SetNextItemWidth(154);
     profilesDropdown.Draw(optionsFile.activeProfile);
     ImGui::SameLine();
 
@@ -299,10 +469,10 @@ void OptionsUI::OnRender() {
         ImGui::EndPopup();
     }
 
-    if (ImGui::BeginPopupModal("Delete Profile", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+    if (ImGui::BeginPopupModal("Delete Profile", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize)) {
 
         auto profile = getActiveProfile();
-        ImGui::Text("Are you sure you want to delete profile '%s'", profile.name.c_str());
+        ImGui::Text("Are you sure you want to\ndelete profile '%s'", profile.name.c_str());
 
         if (ImGui::Button("Cancel")) {
             ImGui::CloseCurrentPopup();
@@ -330,7 +500,7 @@ void OptionsUI::OnRender() {
     ImGui::SameLine();
 
     ImGui::Text(shortenFilename(profile.sourcePath).c_str());
-    ImGui::SameLine(ImGui::GetWindowWidth() - 70);
+    ImGui::SameLine(ImGui::GetWindowWidth() - 68);
 
     ImGui::PushFont(Fonts::fontAwesomeOptions);
     if (sourceFileValid)
@@ -342,6 +512,9 @@ void OptionsUI::OnRender() {
     if (ImGui::Button("\xef\x81\xbc##input")) {
         chooseInput = true;
     }
+    ImGui::HelperPopup("Choose the output of your Intel Quartus\n"
+                       "project. You should find it under\n"
+                       "output_files/MKRVIDOR4000.ttf or similar.", Fonts::robotoOptionsPopups);
     ImGui::PopFont();
 
 
@@ -351,7 +524,7 @@ void OptionsUI::OnRender() {
     ImGui::SameLine();
 
     ImGui::Text(shortenFilename(profile.targetPath).c_str());
-    ImGui::SameLine(ImGui::GetWindowWidth() - 70);
+    ImGui::SameLine(ImGui::GetWindowWidth() - 68);
 
     ImGui::PushFont(Fonts::fontAwesomeOptions);
     if (targetFileValid)
@@ -363,15 +536,42 @@ void OptionsUI::OnRender() {
     if (ImGui::Button("\xef\x81\xbc##output")) {
         chooseOutput = true;
     }
+    ImGui::HelperPopup("Choose the future filename it will be exported\n"
+                       "to, in your Arduino project. You could call it\n"
+                       "FPGA_Bitstream.h or similar.", Fonts::robotoOptionsPopups);
     ImGui::PopFont();
 
 
     ImGui::Checkbox("Autostart", &optionsFile.autostart);
     ImGui::HelperPopup("Automatically start when your PC boots up", Fonts::robotoOptionsPopups);
 
-    if (ImGui::Button("Quit")) {
-        Battery::GetApp().CloseApplication();
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 50);
+    ImGui::SetCursorPosY(ImGui::GetWindowHeight() - 50);
+    ImGui::PushFont(Fonts::fontAwesomeOptionsButtons);
+    if (ImGui::Button("\xef\x80\x91")) {                        // Power off icon
+        ImGui::OpenPopup("Quit ByteReverser##Popup");
     }
+    ImGui::HelperPopup("Quit the ByteReverser background service", Fonts::robotoOptionsPopups);
+    ImGui::PopFont();
+
+    ImGui::PushFont(Fonts::robotoOptionsPopups);
+    if (ImGui::BeginPopupModal("Quit ByteReverser##Popup", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Do you really want to quit?");
+
+        if (ImGui::Button("Cancel")) {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("OK")) {
+            Battery::GetApp().CloseApplication();
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+    ImGui::PopFont();
 
     ImGui::SetCursorPosX(15);
     ImGui::SetCursorPosY(window.getSize().y - 30);
@@ -387,4 +587,6 @@ void OptionsUI::OnRender() {
     ImGui::PopFont();
 
     ImGui::PopFont();
+
+    ImGui::PopStyleVar();
 }

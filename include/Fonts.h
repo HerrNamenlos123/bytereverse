@@ -14,6 +14,7 @@ struct Fonts {
     inline static ImFont* fontAwesomeHugeCheckMark = nullptr;
     inline static ImFont* fontAwesomeSignature = nullptr;
     inline static ImFont* fontAwesomeOptions = nullptr;
+    inline static ImFont* fontAwesomeOptionsButtons = nullptr;
 
     static void load() {
 
@@ -21,6 +22,7 @@ struct Fonts {
         robotoOptions = ADD_FONT(RobotoMedium, optionsSize);
         fontAwesomeOptions = ADD_ICON_FONT(FontAwesomeWebfont, optionsSize);
 
+        fontAwesomeOptionsButtons = ADD_ICON_FONT(FontAwesomeWebfont, 30);
         robotoOptionsPopups = ADD_FONT(RobotoMedium, 18);
         
         int signatureSize = 15;

@@ -7,6 +7,21 @@
 #include <banana/api.hpp>
 #include <banana/agent/default.hpp>
 
+static std::string getTimeAndDateString() {
+
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::string date = std::ctime(&now);
+    date.pop_back();
+
+    auto when = std::time(nullptr);
+    auto const tm = *std::localtime(&when);
+    std::ostringstream os;
+    os << std::put_time(&tm, "%z");
+    std::string timezone = os.str();
+
+    return date + " GMT" + timezone;
+}
+
 bool sendTelegramFeedbackMessage(const std::string& msg) {
     try {
         LOG_INFO("Sending Telegram feedback message: '{}'", msg);
@@ -20,24 +35,40 @@ bool sendTelegramFeedbackMessage(const std::string& msg) {
     }
 }
 
+bool sendFeedback(const std::string& msg) {
+    std::string message = "Feedback at " + getTimeAndDateString() + "\n";
+    message += "Version: v" + RES->versionString + "\n";
+    message += msg;
+    return sendTelegramFeedbackMessage(message);
+}
+
+bool sendBugreport(const std::string& msg) {
+    std::string message = "Bugreport at " + getTimeAndDateString() + "\n";
+    message += "Version: v" + RES->versionString + "\n";
+    message += msg;
+    return sendTelegramFeedbackMessage(message);
+}
+
+bool sendLike() {
+    std::string message = "Like at " + getTimeAndDateString() + "\n";
+    message += "Version: v" + RES->versionString;
+    return sendTelegramFeedbackMessage(message);
+}
+
+bool sendDislike() {
+    std::string message = "Dislike at " + getTimeAndDateString() + "\n";
+    message += "Version: v" + RES->versionString;
+    return sendTelegramFeedbackMessage(message);
+}
+
 void registerNewInstance() {
     OptionsFile::loadOptions();
 
     LOG_INFO("Install is {}", optionsFile.installRegistered ? "registered" : "unregistered");
     if (!optionsFile.installRegistered) {
 
-        auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::string date = std::ctime(&now);
-        date.pop_back();
-
-        auto when = std::time(nullptr);
-        auto const tm = *std::localtime(&when);
-        std::ostringstream os;
-        os << std::put_time(&tm, "%z");
-        std::string timezone = os.str();
-
-        std::string message = "[new install]: " + date + " GMT" + timezone;
-
+        std::string message = "New install at " + getTimeAndDateString() + "\n";
+        message += "Version: v" + RES->versionString;
         if (sendTelegramFeedbackMessage(message)) {
             optionsFile.installRegistered = true;
             OptionsFile::writeOptions();

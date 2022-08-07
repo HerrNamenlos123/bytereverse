@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(TARGET_NAME ByteReverser)
-project(${TARGET_NAME} VERSION 1.0.0 LANGUAGES CXX)
+project(${TARGET_NAME} VERSION 0.1.1 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
@@ -62,7 +62,7 @@ file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS "include/*")
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS "src/*")
 file(GLOB_RECURSE RES_FILES CONFIGURE_DEPENDS "resource/*")
 
-add_executable(${TARGET_NAME} ${SRC_FILES} ${HEADER_FILES} ${RES_FILES})
+add_executable(${TARGET_NAME} ${SRC_FILES} ${HEADER_FILES} ${RES_FILES} "version.h.in")
 
 target_include_directories(${TARGET_NAME} PUBLIC include)
 target_include_directories(${TARGET_NAME} PUBLIC resource)

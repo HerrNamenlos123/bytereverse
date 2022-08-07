@@ -42,7 +42,7 @@ public:
 	void onEvent(sf::Event event);
 	glm::ivec2 wantedWindowSize();
 
-	inline static const glm::ivec2 defaultWindowSize = { 350, 300 };
+	inline static const glm::ivec2 defaultWindowSize = { 350, 250 };
 
 private:
 	OptionsFile::Profile getActiveProfile();
@@ -50,6 +50,7 @@ private:
 	static bool checkSourceFile(const std::string& path);
 	static bool checkTargetFile(const std::string& path);
 	static std::string openFileDialog();
+	static std::string saveFileDialog();
 	void OnUpdate();
 	void OnRender();
 
@@ -59,6 +60,7 @@ private:
 	size_t noFocusCount = 0;
 	bool ignoreFocusLoss = false;
 	char textInputBuffer[64];
+	char feedbackTextInputBuffer[1024];
 
 	std::string sourceFileChecked;
 	bool sourceFileValid = false;
