@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(TARGET_NAME bytereverse)
-project(${TARGET_NAME} VERSION 1.0.0 LANGUAGES CXX)
+project(${TARGET_NAME} LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
@@ -18,7 +18,7 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS "src/*")
 add_executable(${TARGET_NAME} ${SRC_FILES} ${HEADER_FILES})
 
 target_include_directories(${TARGET_NAME} PUBLIC include)
-target_include_directories(${TARGET_NAME} PUBLIC build)
+target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../build)
 
 target_compile_features(${TARGET_NAME} PRIVATE cxx_std_14)
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_EXTENSIONS OFF)
@@ -46,15 +46,6 @@ if (WIN32)
        _CRT_SECURE_NO_WARNINGS
     )
 endif()
-
-
-
-
-###########
-# Version #
-###########
-
-configure_file(version.h.in version.h)
 
 
 

@@ -109,6 +109,14 @@ configure_file(version.h.in version.h)
 
 
 
+##################
+# Subdirectories #
+##################
+
+add_subdirectory(bytereverse)
+
+
+
 
 ###########
 # Linking #
@@ -119,6 +127,8 @@ target_link_libraries(${TARGET_NAME} cereal::cereal)
 target_link_libraries(${TARGET_NAME} banana::banana)
 target_link_libraries(${TARGET_NAME} banana-default)
 target_link_libraries(${TARGET_NAME} banana-winapi)
+
+add_dependencies(${TARGET_NAME} bytereverse)        # Make it dependent on the small CLI-tool
 
 
 

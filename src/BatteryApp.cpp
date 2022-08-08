@@ -4,6 +4,10 @@
 #include "GlobalResources.h"
 #include "Shortcut.h"
 
+// TODO: When worker window comes up the second time, the taskbar icon appears
+
+// TODO: Make optionsWindow file text smaller
+
 void BatteryApp::OnStartup() {
 
     window.setVisible(false);

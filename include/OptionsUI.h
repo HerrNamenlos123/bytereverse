@@ -20,13 +20,14 @@ struct OptionsFile {
 	size_t activeProfile = 0;
 	bool autostart = true;
 	bool installRegistered = false;
+	std::string installationUUID;
 	
 	static void loadOptions();
 	static void writeOptions();
 
 	template<class Archive>
 	void serialize(Archive& archive) {
-		archive( profiles, activeProfile, autostart, installRegistered);
+		archive( profiles, activeProfile, autostart, installRegistered, installationUUID);
 	}
 };
 

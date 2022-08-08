@@ -275,7 +275,6 @@ void OptionsUI::OnRender() {
     ImGui::PopFont();
     ImGui::HelperPopup("Instant feedback", Fonts::robotoOptionsPopups);
     ImGui::SetCursorPos(pos);
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5);
 
 
     bool feedback = false;
@@ -423,7 +422,7 @@ void OptionsUI::OnRender() {
 
     ImGui::Text("Profile");
     ImGui::SameLine();
-    ImGui::SetNextItemWidth(154);
+    ImGui::SetNextItemWidth(160);
     profilesDropdown.Draw(optionsFile.activeProfile);
     ImGui::SameLine();
 

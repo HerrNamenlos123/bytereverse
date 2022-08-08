@@ -3,6 +3,7 @@
 #include "OptionsUI.h"
 #include "GlobalResources.h"
 #include "TelegramBot.h"
+#include "UUID.h"
 
 #include <banana/api.hpp>
 #include <banana/agent/default.hpp>
@@ -38,6 +39,7 @@ bool sendTelegramFeedbackMessage(const std::string& msg) {
 bool sendFeedback(const std::string& msg) {
     std::string message = "Feedback at " + getTimeAndDateString() + "\n";
     message += "Version: v" + RES->versionString + "\n";
+    message += "Install UUID: " + optionsFile.installationUUID + "\n";
     message += msg;
     return sendTelegramFeedbackMessage(message);
 }
@@ -45,19 +47,22 @@ bool sendFeedback(const std::string& msg) {
 bool sendBugreport(const std::string& msg) {
     std::string message = "Bugreport at " + getTimeAndDateString() + "\n";
     message += "Version: v" + RES->versionString + "\n";
+    message += "Install UUID: " + optionsFile.installationUUID + "\n";
     message += msg;
     return sendTelegramFeedbackMessage(message);
 }
 
 bool sendLike() {
     std::string message = "Like at " + getTimeAndDateString() + "\n";
-    message += "Version: v" + RES->versionString;
+    message += "Version: v" + RES->versionString + "\n";
+    message += "Install UUID: " + optionsFile.installationUUID;
     return sendTelegramFeedbackMessage(message);
 }
 
 bool sendDislike() {
     std::string message = "Dislike at " + getTimeAndDateString() + "\n";
-    message += "Version: v" + RES->versionString;
+    message += "Version: v" + RES->versionString + "\n";
+    message += "Install UUID: " + optionsFile.installationUUID;
     return sendTelegramFeedbackMessage(message);
 }
 
@@ -67,8 +72,11 @@ void registerNewInstance() {
     LOG_INFO("Install is {}", optionsFile.installRegistered ? "registered" : "unregistered");
     if (!optionsFile.installRegistered) {
 
+        optionsFile.installationUUID = UUID::generate_uuid();
+
         std::string message = "New install at " + getTimeAndDateString() + "\n";
-        message += "Version: v" + RES->versionString;
+        message += "Version: v" + RES->versionString + "\n";
+        message += "Install UUID: " + optionsFile.installationUUID;
         if (sendTelegramFeedbackMessage(message)) {
             optionsFile.installRegistered = true;
             OptionsFile::writeOptions();

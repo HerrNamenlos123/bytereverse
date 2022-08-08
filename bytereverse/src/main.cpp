@@ -18,7 +18,7 @@ struct Actions_t {
 };
 
 void printVersion() {
-    printf("bytereverse version %d.%d.%d\n", PROJECT_VERSION_MAJOR, PROJECT_VERSION_MINOR, PROJECT_VERSION_PATCH);
+    printf("bytereverse version %d.%d.%d\n", BYTEREVERSE_VERSION_MAJOR, BYTEREVERSE_VERSION_MINOR, BYTEREVERSE_VERSION_PATCH);
 }
 
 void printUnknownOptionError(const char* error) {
@@ -26,11 +26,11 @@ void printUnknownOptionError(const char* error) {
 }
 
 void printUsage() {
-    printf("usage: %s [--version] [--help] inputfile outputfile\n", PROJECT_NAME);
+    printf("usage: bytereverse [--version] [--help] inputfile outputfile\n");
 }
 
 void printHelp() {
-    printf("\nbytereverse utitily by HerrNamenlos123 for byte-reversing FPGA bitstreams for the\n");
+    printf("\nbytereverse utility by HerrNamenlos123 for byte-reversing FPGA bitstreams for the\n");
     printf("Arduino MKR Vidor 4000. Website: https://github.com/HerrNamenlos123/bytereverse\n\n");
     printUsage();
 }
@@ -88,14 +88,14 @@ char reverse(char b) {
     return b;
 }
 
-bool bytereverse(const std::string& inputfile, const std::string& outputfile) {
+int bytereverse(const std::string& inputfile, const std::string& outputfile) {
     
     std::fstream infile;
     infile.open(inputfile, std::ios::in | std::ios::binary);
 
     if (infile.fail()) {
         printf("Failed to open input file for reading: %s\n", inputfile.c_str());
-        return false;
+        return 1;
     }
 
     std::fstream outfile;
@@ -104,7 +104,7 @@ bool bytereverse(const std::string& inputfile, const std::string& outputfile) {
     if (outfile.fail()) {
         printf("Failed to open output file for writing: %s\n", outputfile.c_str());
         infile.close();
-        return false;
+        return 2;
     }
 
     char c;
@@ -114,7 +114,7 @@ bool bytereverse(const std::string& inputfile, const std::string& outputfile) {
 
     infile.close();
     outfile.close();
-    return true;
+    return 0;
 }
 
 int main(int argc, char** argv) {
@@ -131,8 +131,7 @@ int main(int argc, char** argv) {
     if (actions.printUsage) printUsage();
     if (actions.printVersion) printVersion();
 
-    if (!actions.valid) return 1;
+    if (!actions.valid) return 3;
 
-    bool success = bytereverse(actions.inputfile, actions.outputfile);
-    return !success;
+    return bytereverse(actions.inputfile, actions.outputfile);
 }

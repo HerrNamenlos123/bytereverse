@@ -19,7 +19,20 @@ bool doByteReverseWork(std::string& errorMessage, const std::string profileName,
 		return false;
 	}
 
-	Battery::Sleep(5);
+	if (!Battery::FileExists(sourceFile)) {
+		errorMessage = "The input file cannot be found: '" + sourceFile + "'";
+		return false;
+	}
+
+	Battery::PrepareDirectory(Battery::GetParentDirectory(targetFile));
+
+	std::string command = fmt::format("cd /D {} && bytereverse {} {}", Battery::GetExecutableDirectory(), sourceFile, targetFile);
+	auto[success, errorCode] = Battery::ExecuteShellCommand(command);
+
+	if (!success) {
+		errorMessage = "The bytereverse.exe utility failed to process the file. Error code: " + std::to_string(errorCode);
+		return false;
+	}
 
 	return true;
 }

@@ -18,7 +18,7 @@ struct Fonts {
 
     static void load() {
 
-        int optionsSize = 21;
+        int optionsSize = 20;
         robotoOptions = ADD_FONT(RobotoMedium, optionsSize);
         fontAwesomeOptions = ADD_ICON_FONT(FontAwesomeWebfont, optionsSize);
 
