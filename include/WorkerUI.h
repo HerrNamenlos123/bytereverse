@@ -27,7 +27,7 @@ private:
 	std::atomic<bool> threadReadyForJoining = false;
 	bool threadJoined = false;
 
-	float fadeTime = 1.f;
+	float fadeTime = 4.f;
 	float fadeStartTime = 0.f;
 
 	sf::Texture iconTexture;
