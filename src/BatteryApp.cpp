@@ -6,8 +6,6 @@
 
 // TODO: When worker window comes up the second time, the taskbar icon appears
 
-// TODO: Make optionsWindow file text smaller
-
 void BatteryApp::OnStartup() {
 
     window.setVisible(false);
@@ -18,6 +16,8 @@ void BatteryApp::OnStartup() {
     OptionsFile::loadOptions();
     Battery::PrepareDirectory(RES->appdataPath);
     std::filesystem::current_path(RES->appdataPath);
+
+    Fonts::load();
 
     try {
         lockfile = std::make_unique<Battery::Lockfile>(RES->lockfilePath);
@@ -35,8 +35,8 @@ void BatteryApp::OnStartup() {
     tray->attachRightClickCallback([&] { OnRightClick(); });
 
     registerNewInstance();
-
-    Fonts::load();
+    
+    OnRightClick();
 }
 
 void BatteryApp::OnUpdate() {

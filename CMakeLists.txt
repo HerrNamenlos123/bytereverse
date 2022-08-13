@@ -62,7 +62,7 @@ file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS "include/*")
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS "src/*")
 file(GLOB_RECURSE RES_FILES CONFIGURE_DEPENDS "resource/*")
 
-add_executable(${TARGET_NAME} ${SRC_FILES} ${HEADER_FILES} ${RES_FILES} "version.h.in")
+add_executable(${TARGET_NAME} ${SRC_FILES} ${HEADER_FILES} ${RES_FILES} "cmake/version.h.in")
 
 target_include_directories(${TARGET_NAME} PUBLIC include)
 target_include_directories(${TARGET_NAME} PUBLIC resource)
@@ -82,6 +82,7 @@ else()
     target_compile_options(${TARGET_NAME} PRIVATE -Wno-psabi)
 endif()
 
+target_link_options(${TARGET_NAME} PRIVATE "/SUBSYSTEM:$<$<CONFIG:Debug>:CONSOLE>$<$<NOT:$<CONFIG:Debug>>:WINDOWS>")
 
 
 
@@ -104,7 +105,7 @@ endif()
 # Version #
 ###########
 
-configure_file(version.h.in version.h)
+configure_file(cmake/version.h.in version.h)
 
 
 

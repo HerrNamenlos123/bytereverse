@@ -29,8 +29,14 @@ bool doByteReverseWork(std::string& errorMessage, const std::string profileName,
 	std::string command = fmt::format("cd /D {} && bytereverse {} {}", Battery::GetExecutableDirectory(), sourceFile, targetFile);
 	auto[success, errorCode] = Battery::ExecuteShellCommand(command);
 
-	if (!success) {
-		errorMessage = "The bytereverse.exe utility failed to process the file. Error code: " + std::to_string(errorCode);
+	if (success) {
+		if (errorCode != 0) {
+			errorMessage = "The bytereverse.exe utility failed to process the file. Error code: " + std::to_string(errorCode);
+			return false;
+		}
+	}
+	else {
+		errorMessage = "bytereverse.exe failed to execute. Make sure the executable is in the same directory as the application.";
 		return false;
 	}
 
