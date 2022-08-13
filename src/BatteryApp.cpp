@@ -30,7 +30,7 @@ void BatteryApp::OnStartup() {
 
     Battery::SetWindowIcon(window, RES->ArduinoIconSize, RES->ArduinoIconImage);
     
-    tray = std::make_unique<Battery::TrayIcon>(RES->ArduinoIconImage, "Quick-convert for the current profile");
+    tray = std::make_unique<Battery::TrayIcon>(RES->ArduinoIconImage, "ByteReverser: Quick-convert");
     tray->attachLeftClickCallback([&] { OnLeftClick(); });
     tray->attachRightClickCallback([&] { OnRightClick(); });
 
