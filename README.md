@@ -6,7 +6,7 @@
 
 <td>
 <a href="https://github.com/HerrNamenlos123/JTAG_Interface">
-<p align="right"><img src="assets/logo.svg" alt="JTAG_Interface logo" height="100px"></p>
+<img src="assets/logo.svg" alt="JTAG_Interface logo" height="100px">
 </a>
 </td>
 </table>
