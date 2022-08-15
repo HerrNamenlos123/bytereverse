@@ -12,7 +12,11 @@ WorkerUI::WorkerUI(const std::string profileName, const std::string sourceFile, 
 
 	workerThread = std::thread([&] { 
         LOG_INFO("Deploying work from worker thread");
+		
+        auto start = Battery::GetRuntime();
 		workSucceeded = doByteReverseWork(workErrorMessage, profile, source, target);
+        Battery::Sleep(minimumWorkTime - (Battery::GetRuntime() - start).asSeconds());
+		
         LOG_INFO("Work is done, worker thread is ready to be joined");
 		threadReadyForJoining = true;
 	});

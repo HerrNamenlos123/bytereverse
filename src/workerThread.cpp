@@ -1,8 +1,7 @@
 
 #include "pch.h"
 #include "workerThread.h"
-
-#include <windows.h>
+#include "../bytereverse/src/reverse.h"
 
 bool doByteReverseWork(std::string& errorMessage, const std::string profileName, const std::string sourceFile, const std::string targetFile) {
 
@@ -28,34 +27,10 @@ bool doByteReverseWork(std::string& errorMessage, const std::string profileName,
 	
 	Battery::PrepareDirectory(Battery::GetParentDirectory(targetFile));
 
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-	ZeroMemory(&si, sizeof(si));
-	ZeroMemory(&pi, sizeof(pi));
-	si.cb = sizeof(si);
-	si.wShowWindow = SW_HIDE;
-
-	std::string bytereverse = Battery::GetExecutableDirectory() + "/bytereverse.exe";
-	std::string cmdline = fmt::format("\"{}\" \"{}\" \"{}\"", bytereverse, sourceFile, targetFile);
-	if (!CreateProcessW(NULL, (LPWSTR)Battery::MultiByteToWideChar(cmdline).c_str(), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
-		errorMessage = fmt::format("CreateProcess failed ({})", GetLastError());
-		return false;
-	}
-	WaitForSingleObject(pi.hProcess, INFINITE);
-
-	DWORD exitCode;
-	if (!GetExitCodeProcess(pi.hProcess, &exitCode)) {
-		errorMessage = fmt::format("GetExitCodeProcess failed ({})", GetLastError());
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-		return false;
-	}
-	
-	CloseHandle(pi.hProcess);
-	CloseHandle(pi.hThread);
+	int exitCode = bytereverse(sourceFile, targetFile);
 
 	if (exitCode != 0) {
-		errorMessage = "The bytereverse.exe utility failed to process the file. Error code: " + std::to_string(exitCode);
+		errorMessage = "The bytereverse utility failed to process the file. Error code: " + std::to_string(exitCode);
 		return false;
 	}
 

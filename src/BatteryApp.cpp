@@ -36,7 +36,7 @@ void BatteryApp::OnStartup() {
 
     registerNewInstance();
     
-    OnRightClick();
+    Battery::MessageBoxInfo("The Arduino Byte reverser is running. Please click the tray icon in your taskbar to start converting.");
 }
 
 void BatteryApp::OnUpdate() {

@@ -29,6 +29,7 @@ private:
 
 	float fadeTime = 4.f;
 	float fadeStartTime = 0.f;
+	float minimumWorkTime = 0.2f;
 
 	sf::Texture iconTexture;
 

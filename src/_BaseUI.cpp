@@ -38,7 +38,6 @@ void _BaseUI::setupWindow(uint8_t alpha) {
         Battery::SetWindowAlpha(window, alpha);
     }
 
-    Battery::platform_HideFromTaskbar(window.getSystemHandle());
     window.setVisible(true);
     window.requestFocus();
     Battery::SetWindowFocus(window);
