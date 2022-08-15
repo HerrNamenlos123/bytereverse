@@ -4,13 +4,45 @@
 #include "GlobalResources.h"
 #include "Shortcut.h"
 
-// TODO: When worker window comes up the second time, the taskbar icon appears
+bool installApplication() {
+	// Return true if the application has to be restarted
+	
+    auto installPath = Battery::GetLocalInstallDir() + "/" + Battery::GetExecutableName();
+	auto currentPath = Battery::GetExecutablePath();
+	
+    if (std::filesystem::path(currentPath) == std::filesystem::path(installPath)) {
+        return false;   // Already installed
+    }
+	
+    LOG_WARN("Executable is not in the local app directory! Installing application now");
+    LOG_DEBUG("currentPath = {}", std::filesystem::path(currentPath).string());
+	LOG_DEBUG("installPath = {}", std::filesystem::path(installPath).string());
+
+    Battery::PrepareDirectory(Battery::GetParentDirectory(installPath));
+    Battery::RemoveFile(installPath);       // If it exists
+    if (!Battery::CopyFile(currentPath, installPath)) {
+        LOG_ERROR("Failed to copy executable to local install directory");
+        Battery::MessageBoxError("Failed to install the application. Please try again.");
+        return true;
+    }
+
+	// Start application again from install location
+    Battery::ExecuteShellCommand("start " + installPath);
+    Battery::MessageBoxInfo("Successfully installed application! Please click the tray icon in your taskbar to start converting.");
+    return true;
+}
 
 void BatteryApp::OnStartup() {
 
     window.setVisible(false);
     window.setTitle("ByteReverser utility");
     window.setFramerateLimit(60);
+    Battery::GetApp().applicationName = "ArduinoByteReverser";
+
+    if (installApplication()) {
+        CloseApplication();
+        return;
+    }
 
     loadResources();
     OptionsFile::loadOptions();
@@ -35,8 +67,6 @@ void BatteryApp::OnStartup() {
     tray->attachRightClickCallback([&] { OnRightClick(); });
 
     registerNewInstance();
-    
-    Battery::MessageBoxInfo("The Arduino Byte reverser is running. Please click the tray icon in your taskbar to start converting.");
 }
 
 void BatteryApp::OnUpdate() {

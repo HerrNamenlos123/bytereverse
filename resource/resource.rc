@@ -1,6 +1,7 @@
 
 #include "../resource/resource.h"
 
+DB_MAINICON		      ICON     "arduino.ico"
 DB_ARDUINOICON24      PNG      "arduino24.png"
 DB_ARDUINOICON64      PNG      "arduino64.png"
 
