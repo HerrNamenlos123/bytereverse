@@ -18,11 +18,16 @@ When developing FPGA programs for the Arduino MKR Vidor 4000 it is a great quest
 
 This application takes care of it to make development as smooth for you as possible.
 
+<a href="https://www.buymeacoffee.com/herrnamenlos123" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
+</a>
+
 ## How to get
 
 On Windows, you can just download the latest release:
 
-https://github.com/HerrNamenlos123/TechnicalSketcher/releases/latest/download/TechnicalSketcher-Installer-x64.msi
+<a href="https://github.com/HerrNamenlos123/bytereverse/releases/latest/download/ByteReverser.exe">
+<img src="assets/Win10.png" alt="Windows 32-bit download" width="180px"></a>
 
 Currently the GUI is Windows-only and 32 bit for maximum compatibility. The Linux GUI might be coming in the future, please let me know if you want it, so i know if there is interest!
 
@@ -33,7 +38,7 @@ The CLI-tool can be built on any platform:
 cd bytereverse
 mkdir build
 cd build
-cmake ..
+cmake .. -DONLY_CLI=true
 cmake --build .
 ```
 
@@ -55,3 +60,13 @@ When you start the application, a tray icon will appear. Right-clicking it will 
 This immensely speeds up your workflow, as you only need to build the Quartus project, click once in the taskbar and can immediately upload the Arduino project, no more file copying.
 
 There is also an instant feedback feature, where you can write me any messages if you think I could improve something. There is a Telegram bot under the hood, which directly sends me your message. Please do make use of it and tell me of any bugs or improvements I could make.
+
+## Supporting 💪
+
+I did all of this like most of my other projects in my free time and I do not get any money for that. I just like what I do, do it for myself and want to share it so that others can benefit too.
+
+<a href="https://www.buymeacoffee.com/herrnamenlos123" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
+</a>
+
+Exactly for this reason would it be even more amazing if you could find the motivation to buy me a coffee :)
