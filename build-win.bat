@@ -7,3 +7,5 @@ cmake .. -A Win32
 cmake --build . --config MinSizeRel
 
 popd
+
+Pause
