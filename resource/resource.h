@@ -1,2 +1,3 @@
 
-#define DB_ICON1            100
+#define DB_ARDUINOICON24      100
+#define DB_ARDUINOICON64      101

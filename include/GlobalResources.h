@@ -12,9 +12,10 @@ struct GlobalResources {
 	std::string lockfilePath;
 	std::string autostartShortcutDir;
 
-	sf::Image ArduinoIconImage;
-	sf::Texture ArduinoIconTexture;
-	int ArduinoIconSize;
+	sf::Image ArduinoIconImage24;
+	sf::Texture ArduinoIconTexture24;
+	sf::Image ArduinoIconImage64;
+	sf::Texture ArduinoIconTexture64;
 
 	std::string TelegramApiToken;
 	int feedbackChatID;

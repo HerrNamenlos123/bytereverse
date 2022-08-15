@@ -1,7 +1,8 @@
 
 #include "../resource/resource.h"
 
-DB_ICON1            PNG     "icon.png"
+DB_ARDUINOICON24      PNG      "arduino24.png"
+DB_ARDUINOICON64      PNG      "arduino64.png"
 
 #ifndef VS_VERSION_INFO
 #define VS_VERSION_INFO 1

@@ -88,7 +88,7 @@ void WorkerUI::OnRender() {
     int offset = ImGui::GetStyle().WindowPadding.y;
     ImGui::Columns(2, 0, false);
     ImGui::SetColumnWidth(0, ImGui::GetWindowHeight() - offset);
-    ImGui::Image((ImTextureID)RES->ArduinoIconTexture.getNativeHandle(), ImVec2(ImGui::GetWindowHeight() - offset * 2, ImGui::GetWindowHeight() - offset * 2));
+    ImGui::Image((ImTextureID)RES->ArduinoIconTexture64.getNativeHandle(), ImVec2(ImGui::GetWindowHeight() - offset * 2, ImGui::GetWindowHeight() - offset * 2));
     ImGui::NextColumn();
     ImGui::PushFont(Fonts::robotoWorker);
     ImGui::Text("Profile: [%s]", profile.c_str());

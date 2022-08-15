@@ -10,14 +10,20 @@ void loadResources() {
 
     RES = std::make_unique<GlobalResources>();
 
-    auto code = Battery::LoadEmbeddedResource(DB_ICON1, "PNG");
-    if (!RES->ArduinoIconImage.loadFromMemory(&code[0], code.size()))
+    auto bytes24 = Battery::LoadEmbeddedResource(DB_ARDUINOICON24, "PNG");
+    if (!RES->ArduinoIconImage24.loadFromMemory(&bytes24[0], bytes24.size()))
+        throw Battery::Exception("Failed to load Arduino icon");
+
+    if (!RES->ArduinoIconTexture24.loadFromImage(RES->ArduinoIconImage24))
+        throw Battery::Exception("Failed to load Arduino icon texture");
+
+    auto bytes64 = Battery::LoadEmbeddedResource(DB_ARDUINOICON64, "PNG");
+    if (!RES->ArduinoIconImage64.loadFromMemory(&bytes64[0], bytes64.size()))
         throw Battery::Exception("Failed to load tray icon");
 
-    if (!RES->ArduinoIconTexture.loadFromImage(RES->ArduinoIconImage))
-        throw Battery::Exception("Failed to load icon texture");
+    if (!RES->ArduinoIconTexture64.loadFromImage(RES->ArduinoIconImage64))
+        throw Battery::Exception("Failed to load tray icon texture");
 
-    RES->ArduinoIconSize = 64;
     RES->applicationName = "ArduinoByteReverser";
     RES->appdataPath = cpplocate::localDir(RES->applicationName);
     RES->rawAppdataPath = Battery::GetParentDirectory(RES->appdataPath);
