@@ -32,7 +32,7 @@ void printUsage() {
 }
 
 void printHelp() {
-    printf("\nbytereverse utility by HerrNamenlos123 for byte-reversing FPGA bitstreams for the\n");
+    printf("\nbytereverse utility by HerrNamenlos123 for bit-reversing FPGA bitstreams for the\n");
     printf("Arduino MKR Vidor 4000. Website: https://github.com/HerrNamenlos123/bytereverse\n\n");
     printUsage();
 }

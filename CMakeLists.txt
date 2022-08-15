@@ -155,6 +155,8 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/resource" PREFIX "Resource Files"
 # Install #
 ###########
 
+if (NOT ONLY_CLI)
+
 install(
     TARGETS ${TARGET_NAME}
     EXPORT ${TARGET_NAME}Targets
@@ -163,3 +165,5 @@ install(
     RUNTIME DESTINATION "bin"
     INCLUDES DESTINATION "include"
 )
+
+endif ()
