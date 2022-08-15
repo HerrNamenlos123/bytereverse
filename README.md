@@ -42,6 +42,12 @@ cmake .. -DONLY_CLI=true
 cmake --build .
 ```
 
+## Installing
+
+This application will install itself as soon as you start it. Just double-click the executable and see what happens. It does not use administrative rights, so you can install it on any computer you like. It is not a full-fledged installer as it wouldn't be necessary, so you won't have luck trying to uninstall it.
+
+In the rare case that you would want to uninstall it, you must do it manually by navigating to `%LOCALAPPDATA%/ArduinoByteReverser` and `%APPDATA%/ArduinoByteReverser` and deleting both folders. That's it.
+
 ## Why do we need this?
 
 Intel Quartus generates an output file `MKRVIDOR4000.ttf` or similar, that we need to upload to the Arduino's FPGA, but it is not in the right format yet, it is bit-reversed.  
