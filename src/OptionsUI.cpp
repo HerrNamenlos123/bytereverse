@@ -1,4 +1,5 @@
 
+#include "pch.h"
 #include "OptionsUI.h"
 #include "GlobalResources.h"
 #include "TelegramBot.h"
@@ -10,11 +11,12 @@ OptionsFile optionsFile;
 
 void SetupAutostart() {
     std::string shortcutPath = RES->autostartShortcutDir + "/" + Battery::GetExecutableName() + ".lnk";
+	std::string linkTarget = Battery::GetLocalInstallDir() + "/" + Battery::GetExecutableName();
 
     if (optionsFile.autostart) {
         if (!Battery::FileExists(shortcutPath)) {
             LOG_INFO("Autostart enabled, shortcut must be created");
-            if (!CreateShortcut(shortcutPath, Battery::GetExecutablePath())) {
+            if (!CreateShortcut(shortcutPath, linkTarget)) {
                 LOG_ERROR("Failed to create autostart shortcut: {} to {}", shortcutPath, Battery::GetExecutablePath());
             }
         }
