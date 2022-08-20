@@ -23,7 +23,7 @@ struct Fonts {
         fontAwesomeOptions = ADD_ICON_FONT(FontAwesomeWebfont, optionsSize);
 
         fontAwesomeOptionsButtons = ADD_ICON_FONT(FontAwesomeWebfont, 30);
-        robotoOptionsPopups = ADD_FONT(RobotoMedium, 18);
+        robotoOptionsPopups = ADD_FONT(RobotoMedium, 16);
         
         int signatureSize = 15;
         robotoSignature = ADD_FONT(RobotoMedium, 15);

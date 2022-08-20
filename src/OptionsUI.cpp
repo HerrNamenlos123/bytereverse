@@ -258,6 +258,25 @@ void OptionsUI::OnUpdate() {
     }
 }
 
+static void AddUnderLine(ImColor col_) {
+    ImVec2 min = ImGui::GetItemRectMin();
+    ImVec2 max = ImGui::GetItemRectMax();
+    min.y = max.y;
+    ImGui::GetWindowDrawList()->AddLine(min, max, col_, 1.0f);
+}
+
+static void TextURL(const std::string& name, const std::string& URL, const std::string& tooltip) {
+
+    ImGui::Text(name.c_str());
+    if (ImGui::IsItemHovered()) {
+        if (ImGui::IsMouseClicked(0)) {
+            Battery::ExecuteShellCommand("start " + URL);
+        }
+        AddUnderLine(ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+        ImGui::SetTooltip(tooltip.c_str());
+    }
+}
+
 void OptionsUI::OnRender() {
     auto& window = Battery::GetApp().window;
 
@@ -327,7 +346,7 @@ void OptionsUI::OnRender() {
         ImGui::Text("\xef\x82\x9b");
         ImGui::SameLine();
         ImGui::PopFont();
-        if (ImGui::Button("GitHub")) {
+        if (ImGui::Button("GitHub repo/issues")) {
             Battery::ExecuteShellCommand("start " + RES->githubIssueUrl);
             ImGui::CloseCurrentPopup();
         }
@@ -538,8 +557,8 @@ void OptionsUI::OnRender() {
         chooseOutput = true;
     }
     ImGui::HelperPopup("Choose the future filename it will be exported\n"
-                       "to, in your Arduino project. You could call it\n"
-                       "FPGA_Bitstream.h or similar.", Fonts::robotoOptionsPopups);
+                       "to, in your Arduino project. Choose the FPGA_Bitstream.h\n"
+                       "in the JTAG_Interface library's src folder", Fonts::robotoOptionsPopups);
     ImGui::PopFont();
 
 
@@ -584,7 +603,7 @@ void OptionsUI::OnRender() {
     ImGui::TextColored({ 1, 0, 0, 1 }, "\xef\x80\x84");
     ImGui::SameLine();
     ImGui::PopFont();
-    ImGui::Text("by HerrNamenlos123");
+    TextURL("by HerrNamenlos123", "https://github.com/HerrNamenlos123", "Visit my GitHub");
     ImGui::PopFont();
 
     ImGui::PopFont();
