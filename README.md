@@ -18,10 +18,6 @@ When developing FPGA programs for the Arduino MKR Vidor 4000 it is a great quest
 
 This application takes care of it to make development as smooth for you as possible.
 
-<a href="https://www.buymeacoffee.com/herrnamenlos123" target="_blank">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
-</a>
-
 ## How to get
 
 On Windows, you can just download the latest release:
