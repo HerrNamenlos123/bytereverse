@@ -20,7 +20,8 @@ This application takes care of it to make development as smooth for you as possi
 
 ## How to get
 
-On Windows, you can just download the latest release:
+On Windows, you can just download the latest release.  
+Click on this image to download the installer:
 
 <a href="https://github.com/HerrNamenlos123/bytereverse/releases/latest/download/ByteReverser.exe">
 <img src="assets/Win10.png" alt="Windows 32-bit download" width="180px"></a>
